@@ -1,0 +1,102 @@
+graphics    = 1     // go we do any graphics?
+   
+   if (graphics>0) {load_file("nrngui.hoc")} else {load_file("stdgui.hoc")}
+   
+   tstop      = 2100 
+
+hide = xopen("SThprotocell.hoc") 
+
+objref cvode
+
+cvode = new CVode(0)
+cvode.active(1)
+
+objref SThtype,SThcells[1]
+
+SThtype = new SThproto()
+
+SThcells[0] = new SThcell(0,SThtype)
+
+hide = xopen("tools.hoc")
+
+default_gNa_soma = 1.483419823e-02 
+default_gNa_dend = 1.0e-7
+SThcells[0].soma.gna_Na = default_gNa_soma
+// NaL (can interchange with the Do & Bean model)
+default_gNaL_soma = 1.108670852e-05
+default_gNaL_dend = 0.81e-5
+SThcells[0].soma.gna_NaL = 1.108670852e-05
+
+
+   // KDR
+   cset(0,"gk_KDR","")
+   // Kv3.1   
+   cset(0,"gk_Kv31","")
+   // Ih
+   cset(0,"gk_Ih","")
+   // sKCa
+   cset(0,"gk_sKCa","")
+   // CaT   
+   cset(0,"gcaT_CaT","")
+   // CaN
+   cset(0,"gcaN_HVA","")
+   // CaL
+   cset(0,"gcaL_HVA","")
+
+   
+   // set the ion styles  
+
+   forall ion_style("na_ion",1,2,1,0,1)
+   forall ion_style("k_ion",1,2,1,0,1)
+   forall ion_style("ca_ion",3,2,1,1,1)   
+
+  access SThcells[0].soma
+
+  objectvar stim1, stim2, stim3
+   
+   SThcells[0].soma stim1 = new IClamp(0.5)
+   SThcells[0].soma stim2 = new IClamp(0.5)
+   SThcells[0].soma stim3 = new IClamp(0.5)
+   
+   stim1.del = 100
+   stim1.dur = 2000
+   stim1.amp = 0.0
+
+   stim2.del = 0
+   stim2.dur = 0
+   stim2.amp = 0.0
+   
+   stim3.del = 0
+   stim3.dur = 0
+   stim3.amp = 0.0
+
+  cvode.atol(0.0001)
+  cvode.atolscale(&SThcells[0].soma.cai,1.0e-3)   
+
+  printf("*** Resting firing rate (at 25 & 37 degC) \n")
+   
+   celsius = 37
+   
+   set_aCSF(4)
+   
+   tstop = 2100
+   
+   dt=0.025  
+ //  init()
+ //  run()
+   
+ /*
+   if (graphics>0) {newgraph(recsp1t,recsp1v,spon1graph,200,380,400,1,"Rest firing at 25 degC")}   
+   
+   // now at 37 degC (compare with Hallworth et al 2003)
+   celsius = 37
+   
+   // aCSF same as already set above
+   
+   tstop = 2100
+   
+   dt=0.025  
+   init()
+   run()   
+   
+   if (graphics>0) {newgraph(recsp2t,recsp2v,spon2graph,200,380,690,1,"Rest firing at 37 degC")}  
