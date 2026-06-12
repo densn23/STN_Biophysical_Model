@@ -21,18 +21,15 @@ import numpy as np
 
 LAUNCH_CWD = Path.cwd()
 SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_DATASET_ROOT = SCRIPT_DIR / "external" / "STN-Neuron-main"
-DATASET_ROOT = Path(os.environ.get("STN_NEURON_ROOT", DEFAULT_DATASET_ROOT)).expanduser().resolve()
+DATASET_ROOT = Path("/home/dtorbin/Downloads/STN-Neuron-main")
 MECH_DIR = DATASET_ROOT / "sth"
 DATA_DIR = MECH_DIR / "sth-data"
 MORPH_DIR = DATASET_ROOT / "Detailed Morphology"
 POOL_PATH = DATASET_ROOT / "MatingPool.pickle"
-DEPRESSION_MECH_DIR = SCRIPT_DIR / "st_depression"
+DEPRESSION_MECH_DIR = SCRIPT_DIR / "internal_shape_mechanisms"
 BEST_POOL_INDEX = 44
 
 # Running this script from a directory that already has an `x86_64/libnrnmech.so`
-# can make NEURON auto-load the wrong mechanisms before we get a chance to select
-# the 2024 library. Move into the 2024 dataset runtime first, then import NEURON.
 os.chdir(DATASET_ROOT)
 
 from neuron import h, load_mechanisms
@@ -61,7 +58,7 @@ PARAMETER_NAMES = [
     "ais_gNa_scale",
 ]
 
-# Quick-edit run toggles, similar in spirit to the older DBS script.
+# run toggles
 DEFAULT_RUN_CONFIG = {
     "model": "gw",
     "morphology": "20160119_sham3.CNG.swc",
@@ -69,27 +66,31 @@ DEFAULT_RUN_CONFIG = {
     "param_index": None,
     "param_jitter_frac": 0.0,
     "seed": 2,
-    "tstop_ms": 200.0,
-    "dbs_start_ms": 100.0,
-    "dbs_stop_ms": None,
+    "tstop_ms": 1000.0,
+    "dbs_start_ms": 195,
+    "dbs_stop_ms": 795,
     "amp_nA": 0.0,
     "delay_ms": 0.0,
     "dur_ms": 500.0,
     "temperature_c": 37.0,
     "suite": False,
-    # Quick plot/summary toggles. Flip these True/False for default runs.
+    # plot/summary toggles
     "plot": True,
-    "plot_geometry": False,
-    "plot_spectrogram": True,
-    "plot_spta": True,
-    "plot_mpta": True,
+    "plot_geometry": True,
+    "geometry_show_dendrites": True,
+    "geometry_max_hdp_axons": 1,
+    "geometry_max_gpe_axons": 1,
+    "geometry_show_legend": True,
+    "plot_spectrogram": False,
+    "plot_spta": False,
+    "plot_mpta": False,
     "plot_hilbert_phase": False,
     "plot_hilbert_amp": False,
-    "plot_post_rate_distribution": True,
-    "plot_plv_histogram": True,
-    "plot_recruitment_dynamics": True,
-    "paper_plot": True,
-    "save_figure": True,
+    "plot_post_rate_distribution": False,
+    "plot_plv_histogram": False,
+    "plot_recruitment_dynamics": False,
+    "paper_plot": False,
+    "save_figure": False,
     "save_figure_dir": "/home/dtorbin/Downloads/articles",
     "print_summary": True,
     "print_activation_origin": False,
@@ -109,8 +110,8 @@ DEFAULT_RUN_CONFIG = {
     "mpta_display_post_periods": 3.0,
     "hilbert_half_band_hz": 1.0,
     "dbs_rate_edge_window_ms": 100.0,
-    "paper_trace_pre_ms": 40.0,
-    "paper_trace_post_ms": 160.0,
+    "paper_trace_pre_ms": 75.0,
+    "paper_trace_post_ms": 100.0,
 }
 
 DEFAULT_DBS_CONFIG = {
@@ -119,20 +120,19 @@ DEFAULT_DBS_CONFIG = {
     "start_ms": 500.0,
     "stop_ms": None,
     "freq_hz": 135.0,
-    "pw_ms": 0.1,
+    "pw_ms": 0.10,
     "amp_uA": 25.00,
     "ipg_ms": 0.05,
     "omit_pulse": None,
     "sigma_S_per_m": 0.33,
     "r_floor_mm": 0.05,
-    # Keep positive-first stimulation, but place B as the fiber-grazing
-    # cathode-first side and A as the farther anode-first side.
-    "electrode_a_pos_mm": (0.11071246542282401, 0.025, 0.0),
-    "electrode_b_pos_mm": (-0.11071246542282401, -0.025, 0.0),
-    "fiber_center_mm": (0.0, -0.14531209415515967, 0.0),
+    # Anode & Cathode polarity + placement
+    "electrode_a_pos_mm": (0.110, 0.025, 0.0),
+    "electrode_b_pos_mm": (-0.110, -0.025, 0.0),
+    "fiber_center_mm": (0.0, -0.145, 0.0),
     "fiber_radius_mm": 0.10,
     "use_manual_placement": False,
-    "manual_soma_pos_mm": [(0.0, -0.14531209415515967, 0.0)],
+    "manual_soma_pos_mm": [(0.0, -0.145, 0.0)],
     "manual_axon_dir": [(-0.228, 0.973, 0.0)],
     "manual_dend_dir": [],
     "min_r_mm": 0.0,
@@ -143,8 +143,7 @@ DEFAULT_DBS_CONFIG = {
 DEFAULT_HDP_CONFIG = {
     "enabled": True,
     "n_axons": 12,
-    # Simplified rat cortico-STN/HDP diameters: representative Kita & Kita-style
-    # small-to-medium parent axon with thin STN collateral, not a formal mean.
+    # HDP axons Kita&Kita style
     "parent_diameter_um": 0.6,
     "diameter_jitter_frac": 0.0,
     "collateral_diameter_frac": 0.5,
@@ -166,17 +165,15 @@ DEFAULT_HDP_CONFIG = {
     "syn_tau2_ms": 4.0,
     "syn_delay_ms": 0.2,
     "syn_depression_enabled": True,
-    "syn_depression_u": 0.10,
-    "syn_depression_tau_rec_ms": 1000.0,
+    "syn_depression_u": 0.03,
+    "syn_depression_tau_rec_ms": 600.0,
     "syn_depression_tau_facil_ms": 1.0,
 }
 
 DEFAULT_GPE_CONFIG = {
     "enabled": True,
     "n_axons": 1,
-    # First-pass selected rodent GPe->STN afferent. Diameter is a conservative
-    # small myelinated GP axon approximation; target/contact rules carry the
-    # stronger Smith/Baufreton/Atherton grounding.
+    # GPE_axons Smith/Baufreton/Atherton style
     "parent_diameter_um": 0.8,
     "diameter_jitter_frac": 0.0,
     "collateral_diameter_frac": 0.5,
@@ -204,8 +201,8 @@ DEFAULT_GPE_CONFIG = {
     "syn_e_mV": -84.0,
     "syn_delay_ms": 0.2,
     "syn_depression_enabled": True,
-    "syn_depression_u": 0.30,
-    "syn_depression_tau_rec_ms": 40.0,
+    "syn_depression_u": 0.16,
+    "syn_depression_tau_rec_ms": 120.0,
     "syn_depression_tau_facil_ms": 1.0,
 }
 
@@ -218,6 +215,20 @@ _SAVE_FIGURES = bool(DEFAULT_RUN_CONFIG["save_figure"])
 _FIGURE_OUTPUT_DIR = Path(DEFAULT_RUN_CONFIG["save_figure_dir"])
 _FIGURE_RUN_TAG = datetime.now().strftime("%Y%m%d_%H%M%S")
 _FIGURE_SAVE_COUNTER = 0
+
+
+def parse_geometry_axon_limit(value) -> int:
+    if value is None:
+        return 0
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text in {"all", "-1"}:
+            return -1
+        if text in {"none", "off", "no"}:
+            return 0
+        return int(text)
+    value = int(value)
+    return -1 if value < 0 else value
 
 
 def configure_figure_saving(enabled: bool, output_dir: str | Path | None = None) -> None:
@@ -6034,8 +6045,13 @@ def plot_dbs_geometry(
     *,
     hdp_results: list[dict] | None = None,
     gpe_results: list[dict] | None = None,
+    show_dendrites: bool = True,
+    max_hdp_axons: int | str | None = None,
+    max_gpe_axons: int | str | None = None,
+    show_legend: bool = True,
 ) -> None:
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import MaxNLocator, MultipleLocator
     from matplotlib.patches import Circle
 
     if not results:
@@ -6043,23 +6059,62 @@ def plot_dbs_geometry(
     hdp_results = hdp_results or []
     gpe_results = gpe_results or []
 
+    def _limited_pathway(pathway_results: list[dict], max_axons: int | str | None) -> list[dict]:
+        max_axons = parse_geometry_axon_limit(max_axons)
+        if int(max_axons) < 0:
+            return pathway_results
+        max_axons = int(max_axons)
+        if max_axons == 0:
+            return []
+        ordered = sorted(
+            pathway_results,
+            key=lambda item: (
+                not bool(item.get("activated", False)),
+                int(item.get("axon_index", 0)),
+            ),
+        )
+        return ordered[:max_axons]
+
+    hdp_plot_results = _limited_pathway(hdp_results, max_hdp_axons)
+    gpe_plot_results = _limited_pathway(gpe_results, max_gpe_axons)
+    hdp_parent_color = "#7a1fa2"
+    hdp_collateral_color = "#ff7a00"
+    gpe_parent_color = "#0057b8"
+    gpe_collateral_color = "#00b8d9"
+    inactive_alpha = 0.70
+    active_alpha = 0.96
+
+    def _cell_positions_for_geometry(result: dict) -> tuple[np.ndarray, np.ndarray]:
+        positions = np.asarray(result["segment_positions_mm"], dtype=float)
+        phi = np.asarray(result["segment_phi_mV"], dtype=float)
+        if show_dendrites:
+            return positions, phi
+        kinds = np.asarray(result["segment_kinds"])
+        mask = kinds != "dend"
+        return positions[mask], phi[mask]
+
     fig = plt.figure(figsize=(12.5, 5.7))
     ax3d = fig.add_subplot(1, 2, 1, projection="3d")
     ax2d = fig.add_subplot(1, 2, 2)
 
-    position_blocks = [result["segment_positions_mm"] for result in results]
-    phi_blocks = [result["segment_phi_mV"] for result in results]
+    position_blocks = []
+    phi_blocks = []
+    for result in results:
+        positions, phi = _cell_positions_for_geometry(result)
+        if len(positions):
+            position_blocks.append(positions)
+            phi_blocks.append(phi)
     position_blocks.extend(
-        [np.asarray(result["segment_positions_mm"], dtype=float) for result in hdp_results if len(result.get("segment_positions_mm", []))]
+        [np.asarray(result["segment_positions_mm"], dtype=float) for result in hdp_plot_results if len(result.get("segment_positions_mm", []))]
     )
     position_blocks.extend(
-        [np.asarray(result["segment_positions_mm"], dtype=float) for result in gpe_results if len(result.get("segment_positions_mm", []))]
+        [np.asarray(result["segment_positions_mm"], dtype=float) for result in gpe_plot_results if len(result.get("segment_positions_mm", []))]
     )
     phi_blocks.extend(
-        [np.asarray(result["segment_phi_mV"], dtype=float) for result in hdp_results if len(result.get("segment_phi_mV", []))]
+        [np.asarray(result["segment_phi_mV"], dtype=float) for result in hdp_plot_results if len(result.get("segment_phi_mV", []))]
     )
     phi_blocks.extend(
-        [np.asarray(result["segment_phi_mV"], dtype=float) for result in gpe_results if len(result.get("segment_phi_mV", []))]
+        [np.asarray(result["segment_phi_mV"], dtype=float) for result in gpe_plot_results if len(result.get("segment_phi_mV", []))]
     )
     all_positions = np.vstack(position_blocks)
     all_phi = np.concatenate(phi_blocks)
@@ -6073,7 +6128,7 @@ def plot_dbs_geometry(
         c=all_phi,
         cmap="coolwarm",
         s=8,
-        alpha=0.22,
+        alpha=0.14,
         vmin=vmin,
         vmax=vmax,
     )
@@ -6096,7 +6151,7 @@ def plot_dbs_geometry(
         dend_mask = kinds == "dend"
         axon_mask = kinds == "axon"
 
-        if np.any(dend_mask):
+        if show_dendrites and np.any(dend_mask):
             ax3d.scatter(
                 positions[dend_mask, 0],
                 positions[dend_mask, 1],
@@ -6141,14 +6196,14 @@ def plot_dbs_geometry(
 
         ax3d.scatter(*soma, color="black", s=45, marker="x")
 
-    for result in hdp_results:
+    for result in hdp_plot_results:
         parent_points = np.asarray(result.get("parent_points_mm", []), dtype=float)
         collateral_points = np.asarray(result.get("collateral_points_mm", []), dtype=float)
         activated = bool(result.get("activated", False))
-        parent_color = "tab:purple" if activated else "mediumpurple"
-        collateral_color = "darkorange" if activated else "sandybrown"
-        alpha = 0.95 if activated else 0.38
-        lw = 2.0 if activated else 1.0
+        parent_color = hdp_parent_color
+        collateral_color = hdp_collateral_color
+        alpha = active_alpha if activated else inactive_alpha
+        lw = 2.4 if activated else 1.1
         if parent_points.ndim == 2 and parent_points.shape[0] >= 2:
             ax3d.plot(
                 parent_points[:, 0],
@@ -6166,6 +6221,7 @@ def plot_dbs_geometry(
                 collateral_points[:, 2],
                 color=collateral_color,
                 lw=lw,
+                ls="--",
                 alpha=alpha,
                 label="HDP collateral" if result["axon_index"] == 0 else None,
             )
@@ -6181,14 +6237,14 @@ def plot_dbs_geometry(
                     marker="s",
                 )
 
-    for result in gpe_results:
+    for result in gpe_plot_results:
         parent_points = np.asarray(result.get("parent_points_mm", []), dtype=float)
         collateral_points = np.asarray(result.get("collateral_points_mm", []), dtype=float)
         activated = bool(result.get("activated", False))
-        parent_color = "tab:blue" if activated else "lightskyblue"
-        collateral_color = "tab:cyan" if activated else "paleturquoise"
-        alpha = 0.95 if activated else 0.38
-        lw = 2.0 if activated else 1.0
+        parent_color = gpe_parent_color
+        collateral_color = gpe_collateral_color
+        alpha = active_alpha if activated else inactive_alpha
+        lw = 2.4 if activated else 1.1
         if parent_points.ndim == 2 and parent_points.shape[0] >= 2:
             ax3d.plot(
                 parent_points[:, 0],
@@ -6206,6 +6262,7 @@ def plot_dbs_geometry(
                 collateral_points[:, 2],
                 color=collateral_color,
                 lw=lw,
+                ls="--",
                 alpha=alpha,
                 label="GPe collateral" if result["axon_index"] == 0 else None,
             )
@@ -6225,7 +6282,21 @@ def plot_dbs_geometry(
     ax3d.set_xlabel("x (mm)")
     ax3d.set_ylabel("y (mm)")
     ax3d.set_zlabel("z (mm)")
-    ax3d.legend(loc="upper right")
+    ax3d.xaxis.set_major_locator(MaxNLocator(nbins=5))
+    ax3d.yaxis.set_major_locator(MaxNLocator(nbins=5))
+    ax3d.zaxis.set_major_locator(MaxNLocator(nbins=5))
+    if show_legend:
+        ax3d.legend(
+            loc="upper left",
+            bbox_to_anchor=(0.02, 0.96),
+            borderaxespad=0.0,
+            fontsize=7,
+            markerscale=0.75,
+            handlelength=1.4,
+            labelspacing=0.25,
+            borderpad=0.3,
+            frameon=True,
+        )
     fig.colorbar(scat, ax=ax3d, shrink=0.7, pad=0.08, label="phi (mV) at +DBS amp")
 
     x_min = min(
@@ -6295,37 +6366,39 @@ def plot_dbs_geometry(
             head_width=0.02,
             length_includes_head=True,
         )
-    for result in hdp_results:
+    for result in hdp_plot_results:
         parent_points = np.asarray(result.get("parent_points_mm", []), dtype=float)
         collateral_points = np.asarray(result.get("collateral_points_mm", []), dtype=float)
         activated = bool(result.get("activated", False))
-        parent_color = "tab:purple" if activated else "mediumpurple"
-        collateral_color = "darkorange" if activated else "sandybrown"
-        alpha = 0.95 if activated else 0.38
+        parent_color = hdp_parent_color
+        collateral_color = hdp_collateral_color
+        alpha = active_alpha if activated else inactive_alpha
         if parent_points.ndim == 2 and parent_points.shape[0] >= 2:
-            ax2d.plot(parent_points[:, 0], parent_points[:, 1], color=parent_color, lw=1.1, alpha=alpha)
+            ax2d.plot(parent_points[:, 0], parent_points[:, 1], color=parent_color, lw=1.5, alpha=alpha)
         if collateral_points.ndim == 2 and collateral_points.shape[0] >= 2:
-            ax2d.plot(collateral_points[:, 0], collateral_points[:, 1], color=collateral_color, lw=1.1, alpha=alpha)
+            ax2d.plot(collateral_points[:, 0], collateral_points[:, 1], color=collateral_color, lw=1.5, ls="--", alpha=alpha)
             terminal = np.asarray(result.get("terminal_point_mm", []), dtype=float)
             if terminal.shape == (3,):
                 ax2d.scatter(terminal[0], terminal[1], color=collateral_color, s=16 if activated else 8, marker="s", alpha=alpha)
-    for result in gpe_results:
+    for result in gpe_plot_results:
         parent_points = np.asarray(result.get("parent_points_mm", []), dtype=float)
         collateral_points = np.asarray(result.get("collateral_points_mm", []), dtype=float)
         activated = bool(result.get("activated", False))
-        parent_color = "tab:blue" if activated else "lightskyblue"
-        collateral_color = "tab:cyan" if activated else "paleturquoise"
-        alpha = 0.95 if activated else 0.38
+        parent_color = gpe_parent_color
+        collateral_color = gpe_collateral_color
+        alpha = active_alpha if activated else inactive_alpha
         if parent_points.ndim == 2 and parent_points.shape[0] >= 2:
-            ax2d.plot(parent_points[:, 0], parent_points[:, 1], color=parent_color, lw=1.1, alpha=alpha)
+            ax2d.plot(parent_points[:, 0], parent_points[:, 1], color=parent_color, lw=1.5, alpha=alpha)
         if collateral_points.ndim == 2 and collateral_points.shape[0] >= 2:
-            ax2d.plot(collateral_points[:, 0], collateral_points[:, 1], color=collateral_color, lw=1.1, alpha=alpha)
+            ax2d.plot(collateral_points[:, 0], collateral_points[:, 1], color=collateral_color, lw=1.5, ls="--", alpha=alpha)
             terminal = np.asarray(result.get("terminal_point_mm", []), dtype=float)
             if terminal.shape == (3,):
                 ax2d.scatter(terminal[0], terminal[1], color=collateral_color, s=16 if activated else 8, marker="D", alpha=alpha)
-    ax2d.set_title(f"Field slice at z={z_plane:.3f} mm")
+    ax2d.set_title(f"Field slice at z={z_plane * 1000.0:.0f} um")
     ax2d.set_xlabel("x (mm)")
     ax2d.set_ylabel("y (mm)")
+    ax2d.xaxis.set_major_locator(MultipleLocator(0.5))
+    ax2d.yaxis.set_major_locator(MultipleLocator(0.5))
     fig.colorbar(contour, ax=ax2d, shrink=0.85, pad=0.02, label="phi (mV)")
 
     fig.tight_layout()
@@ -6370,6 +6443,30 @@ def main() -> None:
         action=argparse.BooleanOptionalAction,
         default=DEFAULT_RUN_CONFIG["plot_geometry"],
         help="Show a static geometry/field view",
+    )
+    parser.add_argument(
+        "--geometry-show-dendrites",
+        action=argparse.BooleanOptionalAction,
+        default=DEFAULT_RUN_CONFIG["geometry_show_dendrites"],
+        help="Show dendritic segment cloud in the static geometry view",
+    )
+    parser.add_argument(
+        "--geometry-max-hdp-axons",
+        type=parse_geometry_axon_limit,
+        default=DEFAULT_RUN_CONFIG["geometry_max_hdp_axons"],
+        help="HDP axons to draw in the geometry view: none/0, all/-1, or a positive number",
+    )
+    parser.add_argument(
+        "--geometry-max-gpe-axons",
+        type=parse_geometry_axon_limit,
+        default=DEFAULT_RUN_CONFIG["geometry_max_gpe_axons"],
+        help="GPe axons to draw in the geometry view: none/0, all/-1, or a positive number",
+    )
+    parser.add_argument(
+        "--geometry-show-legend",
+        action=argparse.BooleanOptionalAction,
+        default=DEFAULT_RUN_CONFIG["geometry_show_legend"],
+        help="Show legend in the static geometry view",
     )
     parser.add_argument(
         "--plot-spectrogram",
@@ -6919,9 +7016,13 @@ def main() -> None:
             plot_dbs_geometry(
                 results,
                 dbs_config,
-                f"2024 STN geometry ({args.model})",
+                "STN geometry",
                 hdp_results=hdp_results,
                 gpe_results=gpe_results,
+                show_dendrites=args.geometry_show_dendrites,
+                max_hdp_axons=args.geometry_max_hdp_axons,
+                max_gpe_axons=args.geometry_max_gpe_axons,
+                show_legend=args.geometry_show_legend,
             )
 
 
