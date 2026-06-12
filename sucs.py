@@ -9,12 +9,12 @@ from pathlib import Path
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-STN_AFFERENTS = SCRIPT_DIR / "STN.py"
+STN_AFFERENTS = SCRIPT_DIR / "STNafferents.py"
 OUTPUT_ROOT = Path("/home/dtorbin/Downloads/articles") / (
     "succession_" + datetime.now().strftime("%Y%m%d_%H%M%S")
 )
 
-# Edit these defaults once, then override per run only where needed.
+# Edit defaults once, then override per run only where needed.
 DEFAULT_PLOTS = {
     "trace": True,
     "spta": True,
@@ -43,7 +43,7 @@ RUN_PLAN = [
         "pw_ms": 0.100,
         "amp_uA": 25.0,
         "freq_hz": 135.0,
-        "tstop_ms": 10000.0,
+        "tstop_ms": 1000.0,
         "dbs_start_ms": 2000.0,
         "dbs_stop_ms": 8000.0,
         "n_cells": 10,
@@ -54,9 +54,9 @@ RUN_PLAN = [
         "pw_ms": 0.200,
         "amp_uA": 17,
         "freq_hz": 135.0,
-        "tstop_ms": 10000.0,
-        "dbs_start_ms": 2000.0,
-        "dbs_stop_ms": 8000.0,
+        "tstop_ms": 1000.0,
+        "dbs_start_ms": 200.0,
+        "dbs_stop_ms": 800.0,
         "n_cells": 10,
         "plots": DEFAULT_PLOTS,
     },
@@ -65,9 +65,9 @@ RUN_PLAN = [
         "pw_ms": 0.060,
         "amp_uA": 32.0,
         "freq_hz": 135.0,
-        "tstop_ms": 10000.0,
-        "dbs_start_ms": 2000.0,
-        "dbs_stop_ms": 8000.0,
+        "tstop_ms": 1000.0,
+        "dbs_start_ms": 200.0,
+        "dbs_stop_ms": 800.0,
         "n_cells": 10,
         "plots": DEFAULT_PLOTS,
     },
@@ -76,9 +76,9 @@ RUN_PLAN = [
         "pw_ms": 0.100,
         "amp_uA": 45.0,
         "freq_hz": 40.0,
-        "tstop_ms": 10000.0,
-        "dbs_start_ms": 2000.0,
-        "dbs_stop_ms": 8000.0,
+        "tstop_ms": 1000.0,
+        "dbs_start_ms": 200.0,
+        "dbs_stop_ms": 800.0,
         "n_cells": 10,
         "plots": DEFAULT_PLOTS,
     },
