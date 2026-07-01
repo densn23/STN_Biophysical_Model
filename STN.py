@@ -21,12 +21,12 @@ import numpy as np
 
 LAUNCH_CWD = Path.cwd()
 SCRIPT_DIR = Path(__file__).resolve().parent
-DATASET_ROOT = Path("/home/dtorbin/Downloads/STN-Neuron-main")
+DATASET_ROOT = SCRIPT_DIR / "external" / "STN-Neuron-main"
 MECH_DIR = DATASET_ROOT / "sth"
 DATA_DIR = MECH_DIR / "sth-data"
 MORPH_DIR = DATASET_ROOT / "Detailed Morphology"
 POOL_PATH = DATASET_ROOT / "MatingPool.pickle"
-DEPRESSION_MECH_DIR = SCRIPT_DIR / "internal_shape_mechanisms"
+DEPRESSION_MECH_DIR = SCRIPT_DIR / "st_depression"
 BEST_POOL_INDEX = 44
 
 # Running this script from a directory that already has an `x86_64/libnrnmech.so`
@@ -91,7 +91,7 @@ DEFAULT_RUN_CONFIG = {
     "plot_recruitment_dynamics": False,
     "paper_plot": False,
     "save_figure": False,
-    "save_figure_dir": "/home/dtorbin/Downloads/articles",
+    "save_figure_dir": str(SCRIPT_DIR / "outputs"),
     "print_summary": True,
     "print_activation_origin": False,
     "print_synapse_details": False,
