@@ -10,7 +10,7 @@ from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 STN_AFFERENTS = SCRIPT_DIR / "STNafferents.py"
-OUTPUT_ROOT = Path("/home/dtorbin/Downloads/articles") / (
+OUTPUT_ROOT = Path(__file__).resolve().parent / "outputs" / (
     "succession_" + datetime.now().strftime("%Y%m%d_%H%M%S")
 )
 
