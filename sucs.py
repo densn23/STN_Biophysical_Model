@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-STN_AFFERENTS = SCRIPT_DIR / "STNafferents.py"
+STN_AFFERENTS = SCRIPT_DIR / "STN.py"
 OUTPUT_ROOT = Path(__file__).resolve().parent / "outputs" / (
     "succession_" + datetime.now().strftime("%Y%m%d_%H%M%S")
 )
